@@ -12,7 +12,8 @@ typedef NS_ENUM(NSInteger, LUKeychainAccessAccessibility) {
   LUKeychainAccessAttrAccessibleAlways,
   LUKeychainAccessAttrAccessibleAlwaysThisDeviceOnly,
   LUKeychainAccessAttrAccessibleWhenUnlocked,
-  LUKeychainAccessAttrAccessibleWhenUnlockedThisDeviceOnly
+  LUKeychainAccessAttrAccessibleWhenUnlockedThisDeviceOnly,
+  LUKeychainAccessAttrAccessibleWhenPasscodeSetThisDeviceOnly
 };
 
 @interface LUKeychainAccess : NSObject

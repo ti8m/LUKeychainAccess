@@ -109,6 +109,12 @@
     case LUKeychainAccessAttrAccessibleWhenUnlockedThisDeviceOnly:
       return kSecAttrAccessibleWhenUnlockedThisDeviceOnly;
 
+    case LUKeychainAccessAttrAccessibleWhenPasscodeSetThisDeviceOnly:
+      if([self isiOS8])
+        return kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly;
+      else
+        return kSecAttrAccessibleWhenUnlockedThisDeviceOnly;
+
     default:
       return kSecAttrAccessibleWhenUnlocked;
   }
@@ -166,7 +172,22 @@
 
   NSMutableDictionary *query = [NSMutableDictionary dictionary];
   query[(__bridge id)kSecClass] = (__bridge id)kSecClassGenericPassword;
-  query[(__bridge id)kSecAttrAccessible] = (__bridge id)[self accessibilityStateCFType];
+  
+  if(self.addBiometricACL && [self isiOS8]) {
+    CFErrorRef error = nil;
+    SecAccessControlRef sacObject = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
+                                    kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+                                    kSecAccessControlUserPresence, &error);
+    if(error != nil) {
+      NSLog(@"Error while creating ACL: %@", error);
+    }
+    else {
+      query[(__bridge id)kSecAttrAccessControl] = (__bridge id)sacObject;
+    }
+  }
+  else {
+    query[(__bridge id)kSecAttrAccessible] = (__bridge id)[self accessibilityStateCFType];
+  }
 
   NSData *encodedIdentifier = [key dataUsingEncoding:NSUTF8StringEncoding];
   query[(__bridge id)kSecAttrAccount] = encodedIdentifier;
@@ -174,4 +195,11 @@
   return query;
 }
 
+- (BOOL)isiOS8 {
+  if([[NSProcessInfo processInfo] respondsToSelector:@selector(isOperatingSystemAtLeastVersion:)]) {
+    NSOperatingSystemVersion ios8Version = {8, 0, 0};
+    return [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:ios8Version];
+  }
+  return NO;
+}
 @end

@@ -4,6 +4,7 @@
 @interface LUKeychainServices : NSObject
 
 @property (nonatomic, assign) LUKeychainAccessAccessibility accessibilityState;
+@property (nonatomic, assign) BOOL addBiometricACL;
 
 + (instancetype)keychainServices;
 - (BOOL)addData:(NSData *)data forKey:(NSString *)key error:(NSError **)error;
